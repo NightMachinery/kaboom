@@ -1,26 +1,36 @@
-# Kaboom  
-An online adaptation of the card game Two Rooms and a Boom™
-  
-Hi, thank you for showing interest in this small project.  
-[Playkaboom.com](https://playkaboom.com)  
-[Discord Community](https://discord.gg/EmDbDm6PMz)  
-[Buy me a Coffee](https://www.buymeacoffee.com/lukas.fish)  
+# Kaboom
 
+Self-hosted Kaboom for local and intranet play.
 
-This work is [licensed](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode) under the [Creative Commons license BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).  
+## Highlights
 
+- bare-metal self-hosting with `self_host.zsh`
+- single Go backend for room/session/game state
+- production frontend served directly by Caddy
+- local guest identity instead of OAuth
+- built-in playsets only
+- HTTP-friendly clipboard and adaptive `ws` / `wss`
 
-# Development mode in app
+## Development
 
-Click the Kaboom logo 7 times to enter development mode.
+1. Load Node in zsh:
+   ```zsh
+   nvm-load
+   nvm use $(cat .nvmrc)
+   ```
+2. Install dependencies:
+   ```zsh
+   pnpm install --frozen-lockfile
+   ```
+3. Run the frontend dev server:
+   ```zsh
+   pnpm dev
+   ```
+4. Run the Go backend:
+   ```zsh
+   go run ./server
+   ```
 
+## Self-hosting
 
-# Installation  
-  
-Made using Preact  
-  
-1. Install NodeJS + NPM + Vite  
-2. `npm i`  
-3. Create `.env` variable: `VITE_PEERJS_ID=<random-alphanumeric-text>`  
-4. `npm run dev` or `npm run build`  
-
+See [`docs/self-hosting.md`](docs/self-hosting.md).

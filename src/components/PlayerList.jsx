@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 // avatar 
 import Avatar, { genConfig } from 'react-nice-avatar-vite-prod-fork'
@@ -14,7 +14,7 @@ function PlayerList({ players = [], onClick, element, showOnline, showId, me }) 
 }
 
 
-export function PlayerRow({ name, id, onClick, element, conn, me, showId, showOnline, ready }) {
+export function PlayerRow({ name, id, onClick, element, conn, connected, host, me, showId, showOnline, ready }) {
 
     const avaConfig = useMemo(() => {
         return genConfig(name || id || "a");
@@ -26,8 +26,8 @@ export function PlayerRow({ name, id, onClick, element, conn, me, showId, showOn
                 <Avatar shape="square" className='skew' style={{ height: "3rem", width: "3rem", borderRadius: "0px", marginLeft: "-1.55rem", marginRight: "0.25rem" }} {...avaConfig} />
                 <h1 className="font-extrabold truncate">{name}</h1>
                 <div className="grow flex items-center justify-start gap-2">
-                    {showOnline && <OnlineStatus online={conn || id === "HOST"} />}
-                    {showId && <div className={'label w-fit flex items-center justify-center label-primary text-primary-content rounded-md px-2 py-1 text-xs text-normal skew ' + (id === "HOST" ? " bg-secondary " : " bg-primary ")}>{id}</div>}
+                    {showOnline && <OnlineStatus online={host || connected || conn} />}
+                    {showId && <div className={'label w-fit flex items-center justify-center label-primary text-primary-content rounded-md px-2 py-1 text-xs text-normal skew ' + (host ? " bg-secondary " : " bg-primary ")}>{id}</div>}
                     {me && me?.id === id && <div className={'label w-fit flex items-center justify-center label-primary text-primary-content rounded-md px-2 py-1 text-xs text-normal skew bg-info '}>YOU</div>}
                     {ready && <div className='label flex items-center justify-center label-secondary bg-success text-secondary-content rounded-md px-2 py-1 text-xs text-normal skew'>READY</div>}
                     {element}

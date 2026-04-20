@@ -1,64 +1,43 @@
-import { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { PageContext } from '../components/PageContextProvider';
+import { useContext } from "react";
+import { Helmet } from "react-helmet";
+import { Link, useSearchParams } from "react-router-dom";
+import { TbCardsFilled } from "react-icons/tb";
+import { FaBomb } from "react-icons/fa";
 
-// helpers
-import { getAllCards, getCardFromId } from '../helpers/cards';
+import { PageContext } from "../components/PageContextProvider";
+import CardsFilter from "../components/CardsFilter";
+import CardInfoMenu from "../components/menus/CardInfoMenu";
 
-//icons
-import { TbCardsFilled } from "react-icons/tb"
+function CardsView() {
+  const { setMenu } = useContext(PageContext);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-// components
-import { CardFront } from '../components/Card';
-import CardInfoMenu from '../components/menus/CardInfoMenu';
-import Menu from '../components/Menu';
-import { toast } from 'react-hot-toast';
+  return (
+    <div className="flex flex-col justify-start items-center w-full h-full overflow-x-hidden relative scrollbar-hide overflow-y-scroll pb-20">
+      <Helmet>
+        <title>Kaboom • Cards</title>
+      </Helmet>
 
-import { useSearchParams } from 'react-router-dom'
-import { TitleBar } from './playsets/WorkbenchView';
-import CardsFilter from '../components/CardsFilter';
-import useWindowDimensions from '../hooks/useWindowDimensions';
-
-
-
-
-
-
-function CardsView({ }) {
-
-    const { setMenu } = useContext(PageContext)
-
-    let [searchParams, setSearchParams] = useSearchParams();
-
-    const {width, height} = useWindowDimensions();
-
-
-
-
-
-
-
-
-
-
-
-
-
-    return (
-        <div className='flex flex-col justify-start items-center w-full h-full  overflow-x-hidden relative scrollbar-hide'>
-            <TitleBar titleElement={
-                <>
-                    <TbCardsFilled size={27} />
-                    <h1>Cards</h1>
-                </>
-            } />
-            <div className='-mt-2 w-full p-2 pt-0'>
-                <CardsFilter virtualized={width < 768} onSearchUpdate={(search) => setSearchParams("s=" + search)} defaultSearch={searchParams.get("s")} onClick={(card) => setMenu(
-                    <CardInfoMenu card={card} color={card?.color}  />
-                )} />
-            </div>
+      <div className="w-full max-w-5xl p-4 flex items-center justify-between text-title text-secondary text-2xl md:text-3xl font-extrabold">
+        <Link to="/" className="flex items-center gap-3 text-primary">
+          <FaBomb />
+          <span>KABOOM</span>
+        </Link>
+        <div className="flex items-center gap-3 text-secondary">
+          <TbCardsFilled />
+          <span>Cards</span>
         </div>
-    );
+      </div>
+
+      <div className="w-full max-w-5xl p-2 pt-0">
+        <CardsFilter
+          onSearchUpdate={(search) => setSearchParams(search ? `s=${search}` : "")}
+          defaultSearch={searchParams.get("s") || ""}
+          onClick={(card) => setMenu(<CardInfoMenu card={card} color={card?.color} />)}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default CardsView;

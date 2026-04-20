@@ -364,8 +364,8 @@ function InteractionRowBlock({ id = "t0001", quickActions, votes, myVote, bookma
 
             {quickActions?.bookmark && <BookmarkComponent bookmarked={bookmarked} onChange={onBookmarkedChange} />}
             {/* {quickActions?.profile && <button className="clickable flex gap-2 items-center group">
-                <UserAvatar profile={{ name: "lukas" }} className={"w-5 h-5 md:w-6 md:h-6 text-base"} />
-                {!profile && <p className="hidden md:block text-xs font-bold group-hover:underline max-w-[5rem] truncate">@{profile?.name || profile?.id}lukas</p>}
+                <UserAvatar profile={{ name: "player" }} className={"w-5 h-5 md:w-6 md:h-6 text-base"} />
+                {!profile && <p className="hidden md:block text-xs font-bold group-hover:underline max-w-[5rem] truncate">@{profile?.name || profile?.id}</p>}
             </button>} */}
 
         </div>
