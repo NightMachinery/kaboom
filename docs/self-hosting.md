@@ -73,6 +73,8 @@ Behavior:
 
 `start`, `redeploy`, and `dev-start` all stop both production and development tmux sessions first.
 
+The script does not run VPS health or build preflight checks; it just performs the requested action.
+
 ## tmux sessions and logs
 
 Sessions:
@@ -142,24 +144,6 @@ Caddy:
 - reverse proxies everything else to the Vite dev server on `127.0.0.1:4174`
 
 If you pass an explicit `https://...` URL, the generated Caddy block uses `tls internal` for HTTPS and also adds an HTTP fallback for the same host.
-
-## Build preflight on this VPS
-
-Before `pnpm install`, `pnpm build`, or `go build`, `self_host.zsh` runs a VPS health preflight that checks:
-
-- no competing build processes
-- load average
-- available memory and swap
-- IO and memory pressure
-- free disk space
-
-If thresholds fail, the script exits instead of forcing a build.
-
-If you have already verified the VPS manually and want to bypass the safety gate, you can run:
-
-```zsh
-KABOOM_SKIP_PREFLIGHT=1 ./self_host.zsh setup
-```
 
 ## Notes
 

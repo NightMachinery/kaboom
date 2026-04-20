@@ -138,36 +138,6 @@ run_in_node_shell() {
   zsh -lc "source ~/.shared.sh >/dev/null 2>&1 || true; nvm-load >/dev/null 2>&1; nvm use ${(q)NODE_VERSION} >/dev/null; cd ${(q)ROOT_DIR}; ${command_string}"
 }
 
-build_preflight() {
-  if [[ "${KABOOM_SKIP_PREFLIGHT:-0}" == "1" ]]; then
-    print -- "==> Build preflight skipped because KABOOM_SKIP_PREFLIGHT=1"
-    return 0
-  fi
-
-  local build_processes load1 load5 mem_avail swap_avail io_full mem_full disk_avail
-  build_processes="$(ps -eo pid,comm,args --sort=pid | grep -E 'pnpm (install|build)|npm (install|ci|run build)|yarn (install|build)|vite build|webpack|(^| )tsc($| )|go build|go test' | grep -v grep || true)"
-  if [[ -n "$build_processes" ]]; then
-    die "Another build-like process is already running:\n$build_processes"
-  fi
-
-  read -r _ load1 load5 _ <<<"$(uptime | awk -F'load average: ' '{print $2}' | tr ',' ' ')"
-  mem_avail="$(awk '/MemAvailable:/ {print int($2/1024)}' /proc/meminfo)"
-  swap_avail="$(awk '/SwapFree:/ {print int($2/1024)}' /proc/meminfo)"
-  io_full="$(awk -F'avg10=' '/full/ {split($2,a," "); print a[1]}' /proc/pressure/io)"
-  mem_full="$(awk -F'avg10=' '/full/ {split($2,a," "); print a[1]}' /proc/pressure/memory)"
-  disk_avail="$(df -BG "$ROOT_DIR" | awk 'NR==2 {gsub(/G/, "", $4); print $4}')"
-
-  print -- "==> Build preflight: load1=$load1 load5=$load5 MemAvailable=${mem_avail}MiB SwapFree=${swap_avail}MiB io.full.avg10=$io_full mem.full.avg10=$mem_full diskFree=${disk_avail}G"
-
-  (( ${load1%.*} <= 2 || load1 < 2 )) || die "1-minute load is too high: $load1"
-  (( ${load5%.*} <= 2 || load5 < 2 )) || die "5-minute load is too high: $load5"
-  (( mem_avail >= 400 )) || die "MemAvailable below 400 MiB"
-  (( swap_avail >= 600 )) || die "SwapFree below 600 MiB"
-  awk -v value="$io_full" 'BEGIN { exit !(value <= 2.0) }' || die "IO pressure full avg10 above 2.0"
-  awk -v value="$mem_full" 'BEGIN { exit !(value <= 1.5) }' || die "Memory pressure full avg10 above 1.5"
-  (( disk_avail >= 1 )) || die "Disk free below 1GB"
-}
-
 port_is_busy() {
   local port="$1"
   ss -ltn "( sport = :${port} )" | tail -n +2 | grep -q LISTEN
@@ -214,7 +184,6 @@ install_dependencies_if_needed() {
   current=''
   [[ -f "$LOCK_CHECKSUM_FILE" ]] && current="$(<"$LOCK_CHECKSUM_FILE")"
   if [[ ! -d "$ROOT_DIR/node_modules" || "$checksum" != "$current" ]]; then
-    build_preflight
     load_proxy
     load_node
     log 'Installing pnpm dependencies...'
@@ -226,7 +195,6 @@ install_dependencies_if_needed() {
 }
 
 build_frontend() {
-  build_preflight
   load_proxy
   load_node
   log 'Building frontend bundle...'
@@ -234,7 +202,6 @@ build_frontend() {
 }
 
 build_backend() {
-  build_preflight
   load_proxy
   log 'Building Go backend...'
   (
@@ -373,7 +340,6 @@ start_prod() {
 
 start_dev() {
   local public_url="$1"
-  build_preflight
   ensure_port_available "$DEFAULT_BACKEND_PORT" 'Backend'
   ensure_port_available "$DEFAULT_DEV_PORT" 'Vite dev'
   local exports
