@@ -109,8 +109,8 @@ function GameInfoMenu({ code, game, players, me, isHost, sessionToken, execute =
                 <ToggleButton full recommended checked={!!remoteMode} onChange={changeRemoteMode} customText="Remotely reveal card & color" customTextClassName="text-secondary" toggleClassName="toggle-secondary">Remote Party Mode</ToggleButton>
               </>
             )}
-            <button className="btn btn-neutral noskew w-full" onClick={pushNotif}><span className="skew pr-2 text-xl"><TbNotification /></span>Card notification</button>
-            <button className="btn btn-secondary noskew w-full" onClick={copyMigrateLink}>Copy migrate-device link</button>
+            <button className="btn btn-neutral noskew w-full justify-center text-center" onClick={pushNotif}><span className="skew pr-2 text-xl"><TbNotification /></span>Card notification</button>
+            <button className="btn btn-secondary noskew w-full justify-center text-center" onClick={copyMigrateLink}>Copy migrate-device link</button>
           </div>
 
           <div className="flex flex-col justify-start items-start w-full bg-base-100">

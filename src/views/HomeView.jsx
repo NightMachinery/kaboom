@@ -179,15 +179,6 @@ function HomeView() {
             <BsCassetteFill className="mr-2" /> Identity
           </button>
         </section>
-
-        <section className="rounded-2xl border-2 border-neutral/20 p-4 bg-base-100 text-sm leading-6">
-          <h2 className="text-title text-2xl mb-2">Self-hosted notes</h2>
-          <ul className="list-disc pl-6 space-y-1">
-            <li>Everything runs locally on your server: no OAuth, analytics, captcha, or cloud playset service.</li>
-            <li>Copy/migrate links stay room-scoped and work on plain HTTP.</li>
-            <li>Remote Party Mode is enabled by default for new games.</li>
-          </ul>
-        </section>
       </div>
     </div>
   );

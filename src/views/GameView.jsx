@@ -46,7 +46,7 @@ function GameView() {
           toast(<ColorRevealToast color={color} player={payload.from_player} />, {
             id: `color:${payload.from_player?.id}`,
             duration: 5000,
-            position: "top-left",
+            position: "top-center",
             style: { backgroundColor: "transparent", padding: "0px", boxShadow: "none" },
             className: "p-0 -mx-3 bg-red-500 w-full max-w-md shadow-none drop-shadow-none",
           });
@@ -59,7 +59,7 @@ function GameView() {
           toast(<CardRevealToast card={card} player={payload.from_player} />, {
             id: `card:${payload.from_player?.id}`,
             duration: 5000,
-            position: "top-left",
+            position: "top-center",
             style: { backgroundColor: "transparent", padding: "0px", boxShadow: "none" },
             className: "p-0 -mx-3 bg-red-500 w-full max-w-md shadow-none drop-shadow-none",
           });
@@ -387,8 +387,6 @@ function Game({ me, isHost, getPlayers = () => null, game, execute = () => {}, s
 }
 
 function AvatarMenu({ isHost, me, execute = () => {}, sessionToken }) {
-  const { setPrompt } = useContext(PageContext);
-
   async function copyMigrate() {
     if (!sessionToken) return;
     try {
@@ -409,11 +407,11 @@ function AvatarMenu({ isHost, me, execute = () => {}, sessionToken }) {
   }
 
   return (
-    <div className="bg-neutral rounded-lg p-4 text-neutral-content w-full flex flex-col justify-start items-start gap-2">
+    <div className="bg-neutral rounded-lg p-4 text-neutral-content w-full flex flex-col justify-start items-center text-center gap-2">
       <h1 className="font-extrabold text text-title">{me.name}</h1>
-      <button onClick={copyMigrate} className="btn btn-secondary w-52 noskew"><FaLink className="mr-2" />Migrate device</button>
-      <button onClick={isHost ? closeRoom : leaveRoom} className="btn btn-primary w-52 noskew">{isHost ? "CLOSE GAME" : "LEAVE GAME"}</button>
-      {!isHost && <button onClick={leaveRoom} className="underline text-normal text-sm">Forget this tab</button>}
+      <button onClick={copyMigrate} className="btn btn-secondary w-52 noskew justify-center text-center"><FaLink className="mr-2" />Migrate device</button>
+      <button onClick={isHost ? closeRoom : leaveRoom} className="btn btn-primary w-52 noskew justify-center text-center">{isHost ? "CLOSE GAME" : "LEAVE GAME"}</button>
+      {!isHost && <button onClick={leaveRoom} className="underline text-normal text-sm text-center">Forget this tab</button>}
     </div>
   );
 }

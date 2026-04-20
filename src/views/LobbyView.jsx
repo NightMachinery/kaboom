@@ -135,15 +135,15 @@ function LobbyView() {
             {connected ? "Connected" : "Reconnecting..."}
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            <button type="button" className="btn btn-secondary noskew w-full" onClick={copyMigrateLink}>
+            <button type="button" className="btn btn-secondary noskew w-full justify-center text-center" onClick={copyMigrateLink}>
               <FaLink className="mr-2" /> Migrate device
             </button>
             {!roomState.isHost ? (
-              <button type="button" className={`btn noskew w-full ${me?.ready ? "btn-success" : "btn-accent"}`} onClick={() => sendSafe("set_ready", { ready: !me?.ready })}>
+              <button type="button" className={`btn noskew w-full justify-center text-center ${me?.ready ? "btn-success" : "btn-accent"}`} onClick={() => sendSafe("set_ready", { ready: !me?.ready })}>
                 {me?.ready ? "Ready!" : "Ready up"}
               </button>
             ) : (
-              <button type="button" className={`btn noskew w-full ${startReady ? "btn-primary" : "btn-disabled"}`} onClick={() => sendSafe("start_game", {})}>
+              <button type="button" className={`btn noskew w-full justify-center text-center ${startReady ? "btn-primary" : "btn-disabled"}`} onClick={() => sendSafe("start_game", {})}>
                 Start game
               </button>
             )}

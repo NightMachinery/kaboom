@@ -96,11 +96,11 @@ function App() {
           <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         </Helmet>
 
-        <Toaster position="top-left" reverseOrder={false}>
+        <Toaster position="top-center" reverseOrder={false}>
           {(t) => (
             <ToastBar toast={t}>
               {({ icon, message }) => (
-                <div className="w-full max-w-md flex items-center" onClick={() => toast.dismiss(t.id)}>
+                <div className="w-full max-w-md flex items-center justify-center gap-2 text-center" onClick={() => toast.dismiss(t.id)}>
                   {icon}
                   {message}
                 </div>
