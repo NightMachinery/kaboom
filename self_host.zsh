@@ -18,8 +18,27 @@ readonly CADDY_END='# END kaboom self-host'
 readonly NODE_VERSION="${NODE_VERSION:-$(<"$ROOT_DIR/.nvmrc")}"
 
 tmuxnew () {
-	tmux kill-session -t "$1" &> /dev/null || true
-	tmux new -d -s "$@"
+  local session="$1"
+  shift
+
+  tmux kill-session -t "$session" &>/dev/null || true
+  tmux new-session -d -s "$session" "$@"
+}
+
+tmuxnew_with_env() {
+  local session="$1"
+  shift
+  local command="$1"
+  shift
+  local -a tmux_args=(-d -s "$session")
+  local env_assignment
+
+  for env_assignment in "$@"; do
+    tmux_args+=(-e "$env_assignment")
+  done
+
+  tmux kill-session -t "$session" &>/dev/null || true
+  tmux new-session "${tmux_args[@]}" "$command"
 }
 
 usage() {
@@ -216,15 +235,15 @@ ensure_artifacts_exist() {
   [[ -x "$BIN_DIR/kaboom-server" ]] || die 'Missing backend binary. Run ./self_host.zsh setup first.'
 }
 
-tmux_env_exports() {
-  local assignments=()
+tmux_env_assignments() {
+  local -a assignments=()
   for key in ALL_PROXY all_proxy http_proxy https_proxy HTTP_PROXY HTTPS_PROXY npm_config_proxy npm_config_https_proxy NO_PROXY no_proxy; do
     local value="${(P)key:-}"
     if [[ -n "$value" ]]; then
-      assignments+=("export ${key}=${(q)value};")
+      assignments+=("${key}=${value}")
     fi
   done
-  print -r -- "${(j: :)assignments}"
+  print -r -- "${(F)assignments}"
 }
 
 render_caddy_block() {
@@ -332,9 +351,12 @@ start_prod() {
   local public_url="$1"
   ensure_artifacts_exist
   ensure_port_available "$DEFAULT_BACKEND_PORT" 'Backend'
-  local exports
-  exports="$(tmux_env_exports)"
-  tmuxnew "$SERVER_SESSION" zsh -lc "$exports export KABOOM_ADDR=127.0.0.1:${DEFAULT_BACKEND_PORT}; export KABOOM_ROOT_DIR=${(q)ROOT_DIR}; mkdir -p ${(q)LOG_DIR}; cd ${(q)ROOT_DIR}; ${(q)BIN_DIR}/kaboom-server 2>&1 | tee -a ${(q)LOG_DIR}/server.log"
+  local -a env_assignments=()
+  local env_assignment
+  while IFS= read -r env_assignment; do
+    [[ -n "$env_assignment" ]] && env_assignments+=("$env_assignment")
+  done < <(tmux_env_assignments)
+  tmuxnew_with_env "$SERVER_SESSION" "zsh -lc 'export KABOOM_ADDR=127.0.0.1:${DEFAULT_BACKEND_PORT}; export KABOOM_ROOT_DIR=${(q)ROOT_DIR}; mkdir -p ${(q)LOG_DIR}; cd ${(q)ROOT_DIR}; ${(q)BIN_DIR}/kaboom-server 2>&1 | tee -a ${(q)LOG_DIR}/server.log'" "${env_assignments[@]}"
   wait_for_healthz "$public_url"
 }
 
@@ -342,10 +364,13 @@ start_dev() {
   local public_url="$1"
   ensure_port_available "$DEFAULT_BACKEND_PORT" 'Backend'
   ensure_port_available "$DEFAULT_DEV_PORT" 'Vite dev'
-  local exports
-  exports="$(tmux_env_exports)"
-  tmuxnew "$SERVER_SESSION" zsh -lc "$exports export KABOOM_ADDR=127.0.0.1:${DEFAULT_BACKEND_PORT}; export KABOOM_ROOT_DIR=${(q)ROOT_DIR}; mkdir -p ${(q)LOG_DIR}; cd ${(q)ROOT_DIR}/server; GOWORK=off go run . 2>&1 | tee -a ${(q)LOG_DIR}/server-dev.log"
-  tmuxnew "$DEV_SESSION" zsh -lc "$exports source ~/.shared.sh >/dev/null 2>&1 || true; nvm-load >/dev/null 2>&1; nvm use ${(q)NODE_VERSION} >/dev/null; cd ${(q)ROOT_DIR}; pnpm dev 2>&1 | tee -a ${(q)LOG_DIR}/vite.log"
+  local -a env_assignments=()
+  local env_assignment
+  while IFS= read -r env_assignment; do
+    [[ -n "$env_assignment" ]] && env_assignments+=("$env_assignment")
+  done < <(tmux_env_assignments)
+  tmuxnew_with_env "$SERVER_SESSION" "zsh -lc 'export KABOOM_ADDR=127.0.0.1:${DEFAULT_BACKEND_PORT}; export KABOOM_ROOT_DIR=${(q)ROOT_DIR}; mkdir -p ${(q)LOG_DIR}; cd ${(q)ROOT_DIR}/server; GOWORK=off go run . 2>&1 | tee -a ${(q)LOG_DIR}/server-dev.log'" "${env_assignments[@]}"
+  tmuxnew_with_env "$DEV_SESSION" "zsh -lc 'source ~/.shared.sh >/dev/null 2>&1 || true; nvm-load >/dev/null 2>&1; nvm use ${(q)NODE_VERSION} >/dev/null; cd ${(q)ROOT_DIR}; pnpm dev 2>&1 | tee -a ${(q)LOG_DIR}/vite.log'" "${env_assignments[@]}"
   wait_for_healthz "$public_url"
 }
 

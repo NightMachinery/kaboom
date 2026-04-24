@@ -75,6 +75,8 @@ Behavior:
 
 The script does not run VPS health or build preflight checks; it just performs the requested action.
 
+When proxy variables are present in the shell, the tmux-managed backend/frontend sessions now receive them as literal environment values, so `NO_PROXY` lists such as `127.0.0.1,localhost,::1` do not depend on shell quoting.
+
 ## tmux sessions and logs
 
 Sessions:
